@@ -11,8 +11,8 @@ import com.clown.mmoserver.connection.packets.PacketHandler;
 public class Connection extends Thread {
 	protected final Socket socket;
 	protected final String ip;
-	protected final OutputStream out;
-	protected final InputStream in;
+	protected volatile OutputStream out;
+	protected volatile InputStream in;
 	protected volatile boolean disconnect = false;
 	
 	public Connection(final Socket socket) throws IOException {
@@ -35,7 +35,7 @@ public class Connection extends Thread {
 		return ip;
 	}
 	
-	public void closeConnection() {
+	public synchronized void closeConnection() {
 		disconnect = true;
 		if (socket.isConnected()) {
 			try {
@@ -60,7 +60,7 @@ public class Connection extends Thread {
 		disconnect = true;
 	}
 	
-	public boolean isDisconnected() {
+	public synchronized boolean isDisconnected() {
 		return disconnect || socket.isClosed();
 	}
 }

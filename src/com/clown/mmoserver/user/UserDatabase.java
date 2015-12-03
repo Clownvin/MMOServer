@@ -21,6 +21,24 @@ public final class UserDatabase {
 		users.remove(user);
 	}
 	
+	public static User getUserForUsername(final String username) {
+		for (int i = 0; i < users.size(); i++) {
+			if (users.get(i).getUsername().equalsIgnoreCase(username)) {
+				return users.get(i);
+			}
+		}
+		return null;
+	}
+	
+	public static User getUserForIp(final String ip) {
+		for (int i = 0; i < users.size(); i++) {
+			if (users.get(i).getIp().equals(ip)) {
+				return users.get(i);
+			}
+		}
+		return null;
+	}
+	
 	public static boolean userLoggedIn(final User user) {
 		for (User u: users) {
 			if (u.getUsername().equalsIgnoreCase(user.getUsername())) {
@@ -36,17 +54,21 @@ public final class UserDatabase {
 	}
 	
 	public static User loadUser(final String username, final String password) throws InvalidCredentialsException {
+		File userFile = new File(USER_PATH + username + ".user");
+		if (!userFile.exists()) {
+			return null;
+		}
 		try {
 			FileInputStream inputStream = new FileInputStream(USER_PATH + username + ".user");
 			byte[] bytes = new byte[4];
 			if (inputStream.read(bytes) != bytes.length) {
-				System.err.println("Failed to read all length bytes.");
+				System.err.println("SERVERE: Failed to read all length bytes.");
 				inputStream.close();
 				return null;
 			}
 			bytes = new byte[BinaryOperations.bytesToInteger(bytes)];
 			if (inputStream.read(bytes) != bytes.length) {
-				System.err.println("Failed to read all data bytes.");
+				System.err.println("SEVERE: Failed to read all data bytes.");
 				inputStream.close();
 				return null;
 			}

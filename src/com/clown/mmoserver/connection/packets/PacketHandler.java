@@ -63,10 +63,11 @@ public final class PacketHandler {
 	
 	public static void handlePacket(final Packet packet) {
 		ThreadPool.addTask(new ListenerTask(packet)); // Make another thread do the listener management part
+		User user = null;
 		switch (packet.getPacketType()) {
 		case Packet.LOGIN_TYPE:
+			//TODO Consider if adding a thread pause here could sway people from spamming new users.
 			LoginPacket p = (LoginPacket) packet;
-			User user = null;
 			try {
 				user = UserDatabase.loadUser(p.getUsername(), p.getPassword());
 			} catch (InvalidCredentialsException e) {
@@ -76,14 +77,25 @@ public final class PacketHandler {
 				}
 				return;
 			}
-			if (user == null) {
-				Connection connection = ConnectionManager.getConnection(packet.getSourceIp());
-				if (connection != null) {
-					PacketHandler.sendPacket(PacketFactory.buildMessagePacket("No user for username."), connection.getOutputStream());
-				}
+			Connection connection = ConnectionManager.getConnection(packet.getSourceIp());
+			if (connection != null) {
+				PacketHandler.sendPacket(PacketFactory.buildMessagePacket("Login successful."), connection.getOutputStream());
+			}
+			if (user == null) { // User file doesn't exist as far as UserDatabase is concerned.
+				user = new User(p.getUsername(), p.getPassword());
 				return;
 			}
-			// All clear to add user to active users.
+			user.setIp(p.getSourceIp());
+			UserDatabase.addUser(user);
+			break;
+		case Packet.LOGOUT_TYPE:
+			user = UserDatabase.getUserForIp(packet.getSourceIp());
+			if (user != null) {
+				UserDatabase.removeUser(user);
+				UserDatabase.saveUser(user);
+			}
+			ConnectionManager.getConnection(packet.getSourceIp()).closeConnection();
+			break;
 		}
 	}
 	
