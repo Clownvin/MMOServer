@@ -5,13 +5,22 @@ import com.clown.util.BinaryOperations;
 public class User {
 	private String username = null;
 	private String password = null;
+	private String ip;
 	
 	public User(final String username, final String password) {
 		this.username = username;
 		this.password = password;
 	}
 	
-	public static User fromBytes(byte[] bytes) {
+	public String getIp() {
+		return ip;
+	}
+	
+	public void setIp(final String ip) {
+		this.ip = ip;
+	}
+	
+	public static User fromBytes(final byte[] bytes) {
 		char[] cbuff = new char[BinaryOperations.bytesToInteger(bytes)];
 		for (int i = 0; i < cbuff.length; i++) {
 			cbuff[i] = (char) bytes[i + 4];
@@ -54,7 +63,7 @@ public class User {
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (!(obj instanceof User)) {
 			return false;
 		}

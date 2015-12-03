@@ -11,5 +11,13 @@ public final class MMOServer {
 	
 	public static void main(String[] args) {
 		ConnectionAcceptor.start(6667);
+		while (ConnectionAcceptor.isRunning()) { 
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+			//TODO Add anything here?
+		}
+		shuttingDown = true;
 	}
 }

@@ -50,7 +50,7 @@ public class Connection extends Thread {
 	
 	@Override
 	public void run() {
-		while (!disconnect && socket.isConnected()) {
+		while (!isDisconnected()) {
 			try {
 				PacketHandler.handlePacket(PacketFactory.readPacket(ip, in));
 			} catch (IOException e) {
